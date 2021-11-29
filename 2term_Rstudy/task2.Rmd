@@ -1,0 +1,300 @@
+---
+title: "task2"
+author: "zhao hongqiang"
+date: "5/18/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+```{r data, include = FALSE}
+library(TSA)
+library(artfima)
+library(ggplot2)
+library(xts)
+library(BTLLasso)
+library(dplyr)
+data(bev)
+data(Bundesliga, package="vcd")
+```
+# task2-Graphics for Time Series
+
+
+## 1. Air miles
+The dataset airmiles is a time series of the miles flown annually by commercial airlines in the US from 1937 to 1960.
+
+(a) Before plotting the graph, think about what shape you would expect it to have. Plot the series and comment on the differences between what you get and your expectations.
+
+(b) Which aspect ratio conveys the information you find in the series best?
+
+(c) Do you think the graph looks better as a line graph (as suggested on the R
+help page for the dataset) or with points as well?
+
+(d) Might plotting a transformation help you to look more closely at the early
+years or would zooming in be sufficient?
+
+```{r}
+summary(airmiles)
+
+```
+
+
+```{r fig2,fig.height = 6, fig.width = 6}
+
+plot(log(airmiles),ylab = 'airmiles',xlab = 'year',type="o")
+```
+
+
+## Answer
+- question a: In my thought this data is about the time year by year rise, the result with my thought has been, as the time increases, more and more people take the plane
+- question b: The picture uses the same aspect ratio to better see the trend of increasing mileage
+- question c: I think line graph is will be better because line graph reflecting an upward trend
+- question d: After log, the effect of the increase can be more clearly excluded, and the pattern of data change can be more clearly seen.
+
+# 2. Beveridge Wheat Price Index
+The Beveridge index of wheat prices covers almost four hundred years of Euro- pean history from 1500 to 1869 and is available in the dataset bev in tseries.
+
+(a) Plot the series and explain why you have decided to plot it in that way.
+
+(b) Are there any particular features in the series which stand out? How would
+you summarise the information in the series in words?
+
+(c) Manyimportanthistoricaleventstookplaceoverthistimeperiod,including
+the Thirty Years’ War, the English Civil War, and the Napoleonic Wars. Is there any evidence of any of these having an effect on the index?
+```{r}
+summary(bev)
+```
+
+```{r gif,fig.height = 6, fig.width = 10}
+#plot(log(bev),ylab = 'log(bev',xlab = 'year',xlim=c(1500,1869))
+plot(log(bev),ylab = 'log(bev',xlab = 'year',xaxt="n")
+axis(1,1500:1869,1500:1869)
+```
+## answer
+
+- a:Plotted as a line graph, as this gives a clear picture of the changes
+- b:You can see that this price has a cyclical rise and fall，And the overall trend continues to rise
+- c:
+    - the the English Civil War is 1642-1651 
+    - the napoleonic wars is 1803-1815
+    - the Thirty Years’ War is 1618-1648
+    
+  When war occurs there is a drop, then a rise and then a fall
+    
+```{r fig.height = 6, fig.width = 10}
+data = as.xts(bev)
+layout(matrix(1:4, byrow=TRUE, ncol=2))
+plot.xts(data["1618/1648"],main="English Civil War")
+plot.xts(data["1642/1651"],main="Napoleonic wars")
+plot.xts(data["1803/1815"],main="Thirty Years’ War")
+
+```
+# 3. Goals in soccer games
+The Bundesliga dataset was used in §11.2.
+
+(a) Plot graphs of the rates of home and away goals per game over the seasons
+in the same plot. What limits do you recommend for the vertical scale?
+
+(b) Other possibilities for studying the home and away goal rates per game
+include plotting the differences or ratios over time and drawing a scatterplot
+of one rate against another. Is there any information in these graphics that
+is shown better by one than the others?
+
+(c) Can you find equivalent data for the top soccer league in your own country
+and are there similar patterns over the years?
+
+```{r}
+str(Bundesliga)
+```
+
+```{r fig.height = 2, fig.width = 4 }
+data = Bundesliga %>% group_by(Year) %>% summarise(hg=sum(HomeGoals), ag=sum(AwayGoals),ng=n(),avg_hg=hg/ng,avg_ag=ag/ng)
+ggplot(data)+
+  geom_line(aes(Year, hg/ng), colour="red") +
+  geom_line(aes(Year, ag/ng), colour="blue")+ 
+  ylab("home and away goals per game over the seasons")
+
+```
+
+## Answer：
+
+- a:A narrower vertical ratio is recommended to show clearer lines
+- b:
+```{r echo=FALSE}
+ggplot(data,aes(x=avg_hg,y=avg_ag))+geom_point()
+```
+  Winning percentage of home games is higher than away games in the line chart
+- c:
+
+
+# 4. Male and female births
+Important early demographic analyses were carried out on English data from the
+seventeenth century. The Arbuthnot dataset in the HistData package includes
+data on the numbers of male and female christenings in London from 1629 to
+1710.
+
+(a) Plot the number of male christenings over time. Which features stand out?
+
+(b) Why do you think there was a low level of christenings from around the
+mid-1640’s to 1660?
+
+(c) Two low outliers stand out, in 1666, presumably because of the Great Fire
+of London and the plague the previous year, and in 1704. A possible explanation for the 1704 outlier is given on the R help page for the dataset.
+Compare the data values for 1674 and 1704 to check the explanation.
+
+```{r include=FALSE}
+library(HistData)
+data(Arbuthnot)
+
+```
+```{r }
+str(Arbuthnot)
+```
+
+```{r echo=FALSE}
+ggplot(Arbuthnot,aes(Year,Males))+geom_line()
+```
+
+
+## Anwser:
+
+- a:An overall upward trend, with some periods of sudden decline during the period
+- b:because English Civil War Impact
+- c:
+```{r }
+Arbuthnot[c(which(Arbuthnot$Year=="1674"),which(Arbuthnot$Year=="1704")),]
+```
+
+
+
+   1674 and 1704 have same value 
+   
+   
+# 5. Goals in soccer games (again)
+Consider the numbers of goals scored by each team.
+
+(a) How would you plot the annual average goals per home game for each team
+in the Bundesliga over the 46 seasons in the dataset? Would you choose a
+single graphic or a trellis display? Only one team has been a member of
+the Bundesliga ever since it started, Hamburg. How do you think the time
+series of teams with incomplete records should be displayed?
+
+(b) You could compare the annual home and away scoring rates of particular
+teams by plotting the two time series on the same display or by drawing a
+scatterplot of one variable against the other. Using the two teams Hamburg
+and Bayern Munich, comment on which display you think is better. Do the
+displays provide different kinds of information?
+# 6. Deaths by horsekick
+Plot separate displays for each of the 14 corps in the von Bortkiewicz dataset
+(VonBort in vcd).
+
+(a) Do any of the patterns stand out as different?
+
+(b) 11 of the 14 corps had no deaths in the first year (1875). Could this be worth
+looking into?
+
+
+ 
+Answer:
+- a:I think the last name of the data frame is better to show this kind of data and have an idea that the heat map can also show this kind of data structure
+```{r fig.height = 2, fig.width = 4 }
+Bundesliga %>% group_by(Year,HomeTeam) %>% summarise(hg=sum(HomeGoals))
+
+```
+- b:
+```{r}
+ggplot(Bundesliga %>% group_by(Year,HomeTeam) %>% summarise(hg=sum(HomeGoals),ag=sum(AwayGoals)),.groups = 'drop')+
+  geom_point(aes(Year, hg), colour="red") +
+  geom_point(aes(Year, ag), colour="blue")
+  
+
+```
+
+
+# 6. Deaths by horsekick
+
+Plot separate displays for each of the 14 corps in the von Bortkiewicz dataset (VonBort in vcd).
+
+```{r}
+library(vcd)
+data(VonBort)
+for (da in unique(VonBort$corps)) {
+  data = VonBort[which(VonBort$corps == da),]
+  
+  plot(x=data$year,y=data$deaths,type="line",main=da)
+}
+```
+
+(a) Do any of the patterns stand out as different?
+  
+(b) 11 of the 14 corps had no deaths in the first year(1875).Could this be worth
+looking into?
+
+Anwser:
+
+- a:No. XIV1875 is 1
+
+- b:i think it just special case
+
+# 7. Economics data
+The package ggplot2 includes a dataset of five US economic indicators recorded monthly over about 40 years, economics.
+```{r}
+library(ggplot2)
+str(economics)
+```
+
+(a) If you plot all five series in one display, is it better to standardise them all at a common value initially or to align them at their means and divide by their standard deviations? What information is shown in the two displays?
+```{r}
+ggplot(economics)+geom_line(aes(date,log(pce)))+geom_line(aes(date,log(pop)))+geom_line(aes(date,log(psavert)))+geom_line(aes(date,log(uempmed)))+geom_line(aes(date,log(unemploy)))
+```
+(b) Alternatively you could plot each series separately with its own scale. Do these displays provide additional information and is there any information that was shown in the displays of all series together that is not so easy to see here?
+
+# 8. Australian rain
+The dataset bomregions in the DAAG package includes seven regional time se- ries of annual rain in Australia and one time series averaged over the country.
+```{r  include=FALSE}
+library(DAAG)
+data(bomregions)
+```
+(a) Can all seven regional series be plotted in one display or are individual displays more informative?
+- a:7 columns of information in the same display Show more information
+
+```{r}
+str(bomregions)
+
+ggplot(bomregions)+
+  geom_line(aes(Year,eastRain))+
+  geom_line(aes(Year,seRain))+
+  geom_line(aes(Year,southRain))+
+  geom_line(aes(Year,swRain))+
+  geom_line(aes(Year,northRain))+
+  geom_line(aes(Year,mdbRain))+
+  geom_line(aes(Year,auRain))
+```
+
+(b) Are there any outliers in the series and do they affect the scales used ad- versely?
+- b:There are outliers, but they do not affect the percentage of them
+(c) Is there any evidence of trend in the series? Are there cyclical effects?
+- c:There is an increase approximately every 10 years
+# 9. Tree rings
+The package dplR includes several tree ring datasets, including ca533. There are 34 series of measurements covering 1358 years in all from 626 to 1983. Note that no time variable is given, just the information that the data were recorded annually. The actual time range can be found from NOAA’s tree ring database website.
+
+(a) Plot all 34 series in separate displays. Are there any common features?
+```{r}
+library(dplR)
+data("ca533")
+str(ca533)
+plot(ca533)
+```
+
+(b) There are at least two series with much higher maxima than the others. Compare a display excluding these series, but still retaining the same scal- ing for all the plots, with a display where each series is plotted with its own
+scale. What are the advantages and disadvantages of the two approaches?
+
+# 10. Intermission
+Salvador Dali’s painting The Persistence of Memory is in the New York Mu- seum of Modern Art. Do you think the distorted clocks could be interpreted as alternative models of time series?
+
+Anwesr：
+I think it is possible, in that multiple graphics can be combined to represent the painting in an integrated way

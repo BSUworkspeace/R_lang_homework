@@ -1,0 +1,37 @@
+---
+title: "Evaluating the Effect of Timeline Shape on Visualization Task Performance"
+author: "zhao hongqiang"
+date: "5/30/2021"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## ABSTRACT
+
+
+![](./img/1622465202190.png)
+
+We evaluate the effect on task performance of 4 timeline shapes (left to right) across 3 types of temporal event sequence data (top to bottom).
+timelines come in many shapes and forms leaving us to ask what the timelines work 
+
+## Temporal data can have different characteristics
+
+
+
+![](./img/1622466197860.png)
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
